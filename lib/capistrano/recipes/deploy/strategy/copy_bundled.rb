@@ -34,8 +34,10 @@ module Capistrano
           precompile!
           configuration.trigger('strategy:after:precompile')
 
-          logger.info "compressing repository"
           configuration.trigger('strategy:before:compression')
+          logger.info "removing excluded files from repository"
+          remove_excluded_files
+          logger.info "compressing repository"
           compress_repository
           configuration.trigger('strategy:after:compression')
 
@@ -73,7 +75,7 @@ module Capistrano
         end
 
         def precompile!
-          precompile_cmd      = configuration.fetch(:precompile_cmd, "rake assets:precompile")
+          precompile_cmd      = configuration.fetch(:precompile_cmd, "bundle exec rake assets:precompile")
           precompile_flags    = configuration.fetch(:precompile_flags, "")
                  
           args = [""]          
