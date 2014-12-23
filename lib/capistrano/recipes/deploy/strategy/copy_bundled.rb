@@ -75,12 +75,13 @@ module Capistrano
         def precompile!
           precompile_cmd      = configuration.fetch(:precompile_cmd, "rake assets:precompile")
           precompile_flags    = configuration.fetch(:precompile_flags, "")
-                    
+                 
+          args = [""]          
           args << precompile_flags.to_s unless precompile_flags.to_s.empty?
 
           Bundler.with_clean_env do
             logger.info "precompiling assets..."
-            run_locally "cd #{destination} && EXECJS_RUNTIME=\"Node\" #{precompile_cmd}  #{args.join(' ').strip}"
+            run_locally "cd #{destination} && EXECJS_RUNTIME='Node' #{precompile_cmd} #{args.join(' ').strip}"
           end
         end
       end
