@@ -28,6 +28,12 @@ module Capistrano
           bundle!
           configuration.trigger('strategy:after:bundle')
 
+          logger.info "precompiling repository"
+          configuration.trigger('strategy:before:precompile')
+          #Precompile
+          precompile!
+          configuration.trigger('strategy:after:precompile')
+
           logger.info "compressing repository"
           configuration.trigger('strategy:before:compression')
           compress_repository
@@ -63,6 +69,18 @@ module Capistrano
 
             logger.info "packaging gems for bundler in #{destination}..."
             run_locally "cd #{destination} && #{bundle_cmd} package --all"
+          end
+        end
+
+        def precompile!
+          precompile_cmd      = configuration.fetch(:precompile_cmd, "rake assets:precompile")
+          precompile_flags    = configuration.fetch(:precompile_flags, "")
+                    
+          args << precompile_flags.to_s unless precompile_flags.to_s.empty?
+
+          Bundler.with_clean_env do
+            logger.info "precompiling assets..."
+            run_locally "cd #{destination} && EXECJS_RUNTIME=\"Node\" #{precompile_cmd}  #{args.join(' ').strip}"
           end
         end
       end
